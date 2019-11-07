@@ -6,9 +6,7 @@ services:
       container_name: itranswarp-web
       restart: always
       depends_on:
-        - mysql
         - java
-        - redis
       ports:
         - 0.0.0.0:80:80
         - 0.0.0.0:443:443
@@ -18,6 +16,8 @@ services:
         - ./nginx/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
         - ./nginx/log:/srv/itranswarp/log
         - ./nginx/ssl:/srv/itranswarp/ssl
+      links:
+        - java
       env_file:
         - ./.env 
       working_dir: /srv
@@ -40,6 +40,17 @@ services:
       volumes:
         - /etc/localtime:/etc/localtime:ro
         - ../:/srv
+      links:
+        - mysql
+        - redis
+      environment:
+        - REDIS_HOST=redis
+        - REDIS_PORT=6379
+        - REDIS_PASSWORD=JFPRJ
+        - REDIS_DATABASE=3
+        - DB_HOST=mysql
+        - DB_PORT=3306
+        - DB_PASSWORD=123456
       env_file:
         - ./.env 
       working_dir: /srv
@@ -60,6 +71,8 @@ services:
       volumes:
         - /etc/localtime:/etc/localtime:ro
         - ./redis:/data
+      networks:
+        - dev
   mysql:
       image: mysql:5.7
       container_name: itranswarp-mysql
